@@ -1,0 +1,1023 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>LG 감정일기</title>
+
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+
+    <style>
+        /* CSS 변수: 디자인 요소를 한 곳에 모아 관리합니다. */
+        :root {
+            --app-width: 375px;
+            --app-height: 812px;
+            --border-color: #e0e0e0;      /* 부드러운 회색 테두리 */
+            --bg-color: #f0f4f8;          /* 은은한 배경색 */
+            --panel-bg-color: #ffffff;    /* 패널 배경색 */
+            --primary-color: #4a4a4a;     /* 주요 텍스트 색상 */
+            --accent-color: #5d9cec;      /* 강조 색상 (선 색상) */
+            --padding: 20px;
+            --gap: 20px;
+            --border-radius: 15px;        /* 둥근 모서리 */
+            --box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05); /* 은은한 그림자 */
+            
+            /* 다크모드용 추가 변수 */
+            --dark-bg-color: #1a1a1a;
+            --dark-panel-bg-color: #2b2b2b;
+            --dark-border-color: #444444;
+            --dark-primary-color: #e0e0e0;
+        }
+        
+        /* 다크모드 클래스 */
+        body.dark-mode {
+            background-color: var(--dark-bg-color);
+            color: var(--dark-primary-color);
+        }
+
+        body.dark-mode .app-container,
+        body.dark-mode .graph-section,
+        body.dark-mode .navigation-bar,
+        body.dark-mode .record-card,
+        body.dark-mode .setting-item {
+            background-color: var(--dark-panel-bg-color);
+            border-color: var(--dark-border-color);
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+        }
+        
+        body.dark-mode .user-name-box,
+        body.dark-mode .record-card,
+        body.dark-mode .setting-item,
+        body.dark-mode .more-link,
+        body.dark-mode .search-container input {
+            color: var(--dark-primary-color);
+            background-color: var(--dark-panel-bg-color);
+            border-color: var(--dark-border-color);
+        }
+
+        body.dark-mode .header,
+        body.dark-mode .info-bar,
+        body.dark-mode .chat-toggle-header,
+        body.dark-mode .solution-toggle-header,
+        body.dark-mode .record-card-top,
+        body.dark-mode .navigation-bar,
+        body.dark-mode .setting-section-header,
+        body.dark-mode .more-section-header {
+             border-color: var(--dark-border-color);
+        }
+
+        body.dark-mode .profile-image-wrapper {
+             border-color: var(--dark-border-color);
+        }
+
+        body.dark-mode .nav-item {
+            color: var(--dark-primary-color);
+        }
+
+        body.dark-mode .nav-item.active .nav-icon,
+        body.dark-mode .nav-item.active span {
+            color: var(--accent-color);
+        }
+        
+        body.dark-mode .record-summary,
+        body.dark-mode .setting-item-description,
+        body.dark-mode .more-link-description,
+        body.dark-mode .solution-content-box p {
+            color: #b0b0b0;
+        }
+
+        /* 1. 기본 스타일: body와 전체 컨테이너 설정 */
+        body {
+            font-family: 'Arial', sans-serif;
+            background-color: var(--bg-color);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            margin: 0;
+            color: var(--primary-color);
+            transition: background-color 0.5s ease;
+        }
+
+        .app-container {
+            background-color: var(--panel-bg-color);
+            width: var(--app-width);
+            height: var(--app-height);
+            box-sizing: border-box;
+            display: flex;
+            flex-direction: column;
+            padding: var(--padding);
+            /* 기존의 gap을 제거하고 각 요소의 margin으로 간격 조절 */
+            border-radius: var(--border-radius);
+            box-shadow: var(--box-shadow);
+            transition: background-color 0.5s ease;
+        }
+        
+        /* 💡 각 섹션 아래에 간격을 추가하여 동적인 레이아웃 구현 */
+        .header,
+        .graph-section,
+        .chat-section,
+        .solution-section {
+            margin-bottom: var(--gap);
+        }
+
+        /* 2. 헤더 섹션 */
+        .header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding-bottom: var(--padding);
+            border-bottom: 1px solid var(--border-color);
+            transition: border-bottom 0.5s ease;
+        }
+
+        .profile-area {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+        }
+
+        .profile-image-wrapper {
+            width: 60px;
+            height: 60px;
+            border: 2px solid var(--border-color);
+            border-radius: 50%;
+            overflow: hidden;
+            box-shadow: var(--box-shadow);
+            transition: border-color 0.5s ease;
+        }
+
+        .profile-image-wrapper img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+
+        .user-name-box {
+            padding: 10px 20px;
+            border: 1px solid var(--border-color);
+            border-radius: var(--border-radius);
+            font-size: 1.2em;
+            font-weight: bold;
+            box-shadow: var(--box-shadow);
+            transition: border-color 0.5s ease;
+        }
+        
+        .header-actions {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+        }
+
+        /* 3. 그래프 섹션 */
+        .graph-section {
+            border: 1px solid var(--border-color);
+            border-radius: var(--border-radius);
+            box-shadow: var(--box-shadow);
+            display: flex;
+            flex-direction: column;
+            background-color: var(--panel-bg-color);
+            transition: background-color 0.5s ease, border-color 0.5s ease;
+        }
+
+        .info-bar {
+            padding: 10px;
+            border-bottom: 1px solid var(--border-color);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            transition: border-bottom 0.5s ease;
+        }
+        
+        .info-bar .mirror-image {
+            width: 25px;
+            height: 25px;
+            margin-right: 5px;
+        }
+
+        .info-text-container {
+            display: flex;
+            align-items: center;
+            gap: 10px; 
+            flex-grow: 1;
+            font-weight: bold;
+        }
+
+        .info-date {
+            color: var(--primary-color);
+            font-size: 1em;
+        }
+        
+        .info-emotion-score {
+            color: var(--primary-color);
+            font-size: 1em;
+        }
+
+        .emotion-color-circle {
+            width: 25px;
+            height: 25px;
+            border-radius: 50%;
+            border: 1px solid var(--border-color);
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+        }
+
+        .emotion-happy { background-color: #ffda00; }
+        .emotion-calm { background-color: #55b74b; }
+        .emotion-sad { background-color: #5080c5; }
+        .emotion-angry { background-color: #e20025; }
+        .emotion-excited { background-color: #ff851b; }
+
+        .graph-area {
+            position: relative;
+            padding: 20px 10px;
+            height: 150px;
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+        }
+
+        .graph-label {
+            margin: 0;
+            font-size: 1.1em;
+            font-weight: bold;
+        }
+
+        .graph-canvas {
+            position: relative;
+            flex-grow: 1;
+        }
+
+        .stress-graph-svg {
+            position: absolute;
+            width: 100%;
+            height: 100%;
+            top: 0;
+            left: 0;
+        }
+        
+        .stress-graph-svg #graph-line {
+            stroke: var(--accent-color);
+            fill: none; 
+            stroke-width: 2;
+        }
+
+        .data-point-circle {
+            fill: var(--accent-color);
+            cursor: pointer;
+            transition: fill 0.2s ease;
+        }
+
+        .graph-data-points-html {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            display: flex;
+            justify-content: space-between;
+        }
+
+        .data-point-label-wrapper {
+            position: relative;
+            flex-grow: 1;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+        
+        .data-point-tooltip {
+            position: absolute;
+            top: -25px;
+            background-color: var(--primary-color);
+            color: var(--panel-bg-color);
+            padding: 5px 8px;
+            border-radius: 5px;
+            font-size: 0.8em;
+            white-space: nowrap;
+            visibility: hidden;
+            opacity: 0;
+            transition: opacity 0.3s;
+        }
+        
+        .data-point-label-wrapper:hover .data-point-tooltip,
+        .data-point-label-wrapper.active .data-point-tooltip {
+            visibility: visible;
+            opacity: 1;
+        }
+
+        .data-point-date {
+            position: absolute;
+            bottom: -15px;
+            white-space: nowrap;
+            font-size: 0.8em;
+            font-weight: bold;
+        }
+
+        /* 4. 대화 내용 & 솔루션 섹션 */
+        .chat-section, .solution-section {
+            padding: 0; /* 내부 패딩 제거 */
+        }
+        
+        .chat-toggle-header, .solution-toggle-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            cursor: pointer;
+            padding: 0 var(--padding) 10px var(--padding); /* 헤더에만 패딩 적용 */
+            margin-bottom: 10px;
+            border-bottom: 1px solid var(--border-color);
+            transition: border-bottom 0.5s ease;
+        }
+        
+        .chat-title, .solution-title {
+            font-size: 1.2em;
+            font-weight: bold;
+            margin: 0;
+        }
+
+        .toggle-icon {
+            font-size: 1.5em;
+            font-weight: bold;
+            transition: transform 0.3s ease;
+            color: var(--accent-color);
+        }
+
+        .chat-toggle-header.active .toggle-icon,
+        .solution-toggle-header.active .toggle-icon {
+            transform: rotate(45deg);
+        }
+
+        .chat-content-box, .solution-content-box {
+            overflow: hidden;
+            max-height: 500px;
+            padding: 0 var(--padding);
+            transition: max-height 0.5s ease-out, opacity 0.5s ease-out;
+            opacity: 1;
+        }
+
+        .chat-content-box.hidden, .solution-content-box.hidden {
+            max-height: 0;
+            opacity: 0;
+            padding: 0 var(--padding); /* 내용이 접힐 때 패딩도 함께 줄어들도록 */
+        }
+        
+        .solution-content-box p {
+            font-size: 0.9em;
+            line-height: 1.4;
+        }
+
+        /* 5. 하단 네비게이션 바 */
+        .navigation-bar {
+            padding: 15px 0;
+            display: flex;
+            justify-content: space-around;
+            align-items: center;
+            font-weight: bold;
+            background-color: var(--panel-bg-color);
+            border-top: 1px solid var(--border-color);
+            border-radius: var(--border-radius) var(--border-radius) 0 0;
+            box-shadow: 0 -4px 12px rgba(0, 0, 0, 0.05);
+            transition: background-color 0.5s ease, border-top 0.5s ease;
+        }
+
+        .nav-item {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            text-align: center;
+            text-decoration: none;
+            color: var(--primary-color);
+            width: 25%;
+            font-size: 0.9em;
+            transition: color 0.3s ease;
+        }
+        
+        .nav-item.active .nav-icon,
+        .nav-item.active span {
+            color: var(--accent-color);
+        }
+
+        .nav-icon {
+            font-size: 24px;
+            color: var(--primary-color);
+            margin-bottom: 5px;
+        }
+
+        /* 6. 기록보기 페이지 스타일 */
+        .record-section {
+            flex-grow: 1;
+            padding: var(--padding);
+            display: flex;
+            flex-direction: column;
+            gap: var(--gap);
+            overflow-y: auto;
+        }
+        
+        .record-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding-bottom: 10px;
+            border-bottom: 1px solid var(--border-color);
+            transition: border-bottom 0.5s ease;
+        }
+        
+        .record-header-nav {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        
+        .record-header-nav .nav-arrow {
+            font-size: 1.5em;
+            cursor: pointer;
+            color: var(--primary-color);
+        }
+        
+        .record-title {
+            font-size: 1.2em;
+            font-weight: bold;
+            margin: 0;
+        }
+        
+        .record-list {
+            display: flex;
+            flex-direction: column;
+            gap: 15px;
+        }
+        
+        .record-card {
+            background-color: var(--panel-bg-color);
+            border: 1px solid var(--border-color);
+            border-radius: var(--border-radius);
+            box-shadow: var(--box-shadow);
+            padding: 15px;
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+            cursor: pointer;
+            transition: transform 0.2s ease, box-shadow 0.2s ease, background-color 0.5s ease, border-color 0.5s ease;
+        }
+        
+        .record-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 6px 16px rgba(0, 0, 0, 0.1);
+        }
+        
+        .record-card-top {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            font-weight: bold;
+            border-bottom: 1px solid var(--border-color);
+            padding-bottom: 8px;
+            transition: border-bottom 0.5s ease;
+        }
+        
+        .record-date {
+            font-size: 1em;
+        }
+        
+        .record-emotion-circle {
+            width: 20px;
+            height: 20px;
+            border-radius: 50%;
+        }
+        
+        .record-summary {
+            font-size: 0.9em;
+            color: #666;
+        }
+
+        /* 7. 설정 페이지 스타일 */
+        .setting-section {
+            flex-grow: 1;
+            padding: var(--padding);
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+            overflow-y: auto;
+        }
+        
+        .setting-section-header, .more-section-header {
+            padding-bottom: 10px;
+            border-bottom: 1px solid var(--border-color);
+            margin-bottom: 10px;
+            transition: border-bottom 0.5s ease;
+        }
+        
+        .setting-title, .more-title {
+            font-size: 1.2em;
+            font-weight: bold;
+            margin: 0;
+        }
+        
+        .setting-item, .more-link {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            background-color: var(--panel-bg-color);
+            padding: 15px;
+            border-radius: var(--border-radius);
+            box-shadow: var(--box-shadow);
+            border: 1px solid var(--border-color);
+            cursor: pointer;
+            transition: transform 0.2s ease, box-shadow 0.2s ease, background-color 0.5s ease, border-color 0.5s ease;
+        }
+        
+        .setting-item:hover, .more-link:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+        }
+
+        .setting-item-text, .more-link-text {
+            display: flex;
+            flex-direction: column;
+            flex-grow: 1;
+        }
+        
+        .setting-item-label, .more-link-label {
+            font-weight: bold;
+            font-size: 1em;
+            margin-bottom: 3px;
+        }
+        
+        .setting-item-description, .more-link-description {
+            font-size: 0.8em;
+            color: #666;
+        }
+
+        /* 토글 스위치 스타일 */
+        .toggle-switch {
+            position: relative;
+            display: inline-block;
+            width: 50px;
+            height: 28px;
+        }
+
+        .toggle-switch input {
+            opacity: 0;
+            width: 0;
+            height: 0;
+        }
+
+        .toggle-slider {
+            position: absolute;
+            cursor: pointer;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background-color: #ccc;
+            transition: .4s;
+            border-radius: 28px;
+        }
+
+        .toggle-slider:before {
+            position: absolute;
+            content: "";
+            height: 20px;
+            width: 20px;
+            left: 4px;
+            bottom: 4px;
+            background-color: white;
+            transition: .4s;
+            border-radius: 50%;
+        }
+
+        input:checked + .toggle-slider {
+            background-color: var(--accent-color);
+        }
+
+        input:focus + .toggle-slider {
+            box-shadow: 0 0 1px var(--accent-color);
+        }
+
+        input:checked + .toggle-slider:before {
+            transform: translateX(22px);
+        }
+        
+        /* 8. 더보기 페이지 스타일 */
+        .more-section {
+            flex-grow: 1;
+            padding: var(--padding);
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+            overflow-y: auto;
+        }
+
+        .more-link-icon {
+            font-size: 1.2em;
+            color: var(--primary-color);
+            margin-right: 15px;
+        }
+        
+        .more-link-arrow {
+            font-size: 1.2em;
+            color: #ccc;
+            margin-left: 15px;
+        }
+
+        /* 새로운 페이지 전환 스타일 */
+        .page-content-wrapper {
+            position: relative;
+            flex-grow: 1;
+        }
+        
+        .page-content {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            transition: opacity 0.5s ease, visibility 0.5s ease;
+            visibility: hidden;
+            opacity: 0;
+            display: flex;
+            flex-direction: column;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        .page-content.active {
+            visibility: visible;
+            opacity: 1;
+        }
+    </style>
+</head>
+<body>
+    <div class="app-container">
+        <header class="header">
+            <div class="profile-area">
+                <div class="profile-image-wrapper">
+                    <img src="img.png" alt="LG 사용자 프로필"> 
+                <!--여기 img.png 저거를 이미지 이름으로 바꾸면 사진이 바뀌어요-->>
+                </div>
+                <div class="user-name-box">
+                    사용자
+                    <!--사용자 이름 변경 가능해요-->>
+                </div>
+            </div>
+        </header>
+
+        <div class="page-content-wrapper">
+            <div id="home-page" class="page-content active">
+                <section class="graph-section">
+                    <div class="info-bar">
+                        <div class="info-text-container">
+                            <img src="mirror.png" alt="거울 아이콘" class="mirror-image">
+                            <span class="info-date">2025.08.08</span>
+                            <span class="info-emotion-score">감정지수: 75</span>
+                        </div>
+                        <div class="emotion-color-circle emotion-happy"></div>
+                    </div>
+                    <div class="graph-area">
+                        <h3 class="graph-label">스트레스 지수</h3>
+                        <div class="graph-canvas">
+                            <svg id="stress-graph-svg" class="stress-graph-svg" viewBox="0 0 100 100" preserveAspectRatio="none">
+                                <path id="graph-line" fill="none" stroke="var(--accent-color)" stroke-width="2"></path>
+                                <g id="graph-data-points-svg"></g>
+                            </svg>
+                            <div id="graph-data-points-html" class="graph-data-points-html"></div>
+                        </div>
+                    </div>
+                </section>
+
+                <main class="chat-section">
+                    <div class="chat-toggle-header">
+                        <h3 class="chat-title">대화내용</h3>
+                        <span class="toggle-icon">+</span>
+                    </div>
+                    <div class="chat-content-box hidden">
+                        <p>
+                            안녕하세요, 사용자님. 오늘은 기분이 어떠신가요?<br>
+                            2025.08.01 감정일기를 작성하고 스트레스 지수를 확인해 보세요.
+                            <!--대화내용 리스트 내용.-->>
+                        </p>
+                    </div>
+                </main>
+                
+                <section class="solution-section">
+                    <div class="solution-toggle-header">
+                        <h3 class="solution-title">솔루션</h3>
+                        <span class="toggle-icon">+</span>
+                    </div>
+                    <div class="solution-content-box hidden">
+                        <p class="solution-text">
+                            </p>
+                    </div>
+                </section>
+                
+            </div>
+
+            <div id="record-page" class="page-content">
+                <section class="record-section">
+                    <div class="record-header">
+                        <div class="record-header-nav">
+                            <i class="fas fa-chevron-left nav-arrow"></i>
+                            <h3 class="record-title">2025년 8월</h3>
+                            <i class="fas fa-chevron-right nav-arrow"></i>
+                        </div>
+                    </div>
+                    <div class="record-list">
+                        <div class="record-card">
+                            <div class="record-card-top">
+                                <span class="record-date">8/7 (금)</span>
+                                <div class="record-emotion-circle emotion-happy"></div>
+                            </div>
+                            <div class="record-summary">
+                                오늘은 친구들과 즐겁게 놀아서 기분이 좋았어.
+                            </div>
+                        </div>
+                        <div class="record-card">
+                            <div class="record-card-top">
+                                <span class="record-date">8/6 (목)</span>
+                                <div class="record-emotion-circle emotion-calm"></div>
+                            </div>
+                            <div class="record-summary">
+                                집에서 혼자 영화를 보면서 편안한 하루를 보냈어.
+                            </div>
+                        </div>
+                    </div>
+                </section>
+            </div>
+            
+            <div id="setting-page" class="page-content">
+                <section class="setting-section">
+                    <div class="setting-section-header">
+                        <h3 class="setting-title">설정</h3>
+                    </div>
+                    
+                    <div class="setting-item">
+                        <div class="setting-item-text">
+                            <span class="setting-item-label">다크 모드</span>
+                            <span class="setting-item-description">앱 화면을 어둡게 설정합니다.</span>
+                        </div>
+                        <label class="toggle-switch">
+                            <input type="checkbox" id="dark-mode-toggle">
+                            <span class="toggle-slider"></span>
+                        </label>
+                    </div>
+                    <div class="setting-item">
+                        <div class="setting-item-text">
+                            <span class="setting-item-label">알림 설정</span>
+                            <span class="setting-item-description">알림을 켜거나 끕니다.</span>
+                        </div>
+                        <label class="toggle-switch">
+                            <input type="checkbox" checked>
+                            <span class="toggle-slider"></span>
+                        </label>
+                    </div>
+                    <div class="setting-item">
+                        <div class="setting-item-text">
+                            <span class="setting-item-label">계정 관리</span>
+                            <span class="setting-item-description">프로필 정보, 비밀번호 등을 수정합니다.</span>
+                        </div>
+                        <i class="fas fa-chevron-right more-link-arrow"></i>
+                    </div>
+                    <div class="setting-item">
+                        <div class="setting-item-text">
+                            <span class="setting-item-label">데이터 백업/복원</span>
+                            <span class="setting-item-description">일기 데이터를 안전하게 관리합니다.</span>
+                        </div>
+                        <i class="fas fa-chevron-right more-link-arrow"></i>
+                    </div>
+                </section>
+            </div>
+
+            <div id="more-page" class="page-content">
+                <section class="more-section">
+                    <div class="more-section-header">
+                        <h3 class="more-title">더보기</h3>
+                    </div>
+                    <div class="more-link">
+                        <i class="fas fa-bullhorn more-link-icon"></i>
+                        <div class="more-link-text">
+                            <span class="more-link-label">공지사항</span>
+                        </div>
+                        <i class="fas fa-chevron-right more-link-arrow"></i>
+                    </div>
+                    <div class="more-link">
+                        <i class="fas fa-question-circle more-link-icon"></i>
+                        <div class="more-link-text">
+                            <span class="more-link-label">도움말</span>
+                        </div>
+                        <i class="fas fa-chevron-right more-link-arrow"></i>
+                    </div>
+                    <div class="more-link">
+                        <i class="fas fa-info-circle more-link-icon"></i>
+                        <div class="more-link-text">
+                            <span class="more-link-label">앱 정보</span>
+                        </div>
+                        <i class="fas fa-chevron-right more-link-arrow"></i>
+                    </div>
+                </section>
+            </div>
+        </div>
+
+        <nav class="navigation-bar">
+            <a href="#home-page" class="nav-item home active">
+                <i class="nav-icon fas fa-house-user"></i>
+                <span>홈</span>
+            </a>
+            <a href="#record-page" class="nav-item record">
+                <i class="nav-icon fas fa-book"></i>
+                <span>기록보기</span>
+            </a>
+            <a href="#setting-page" class="nav-item setting">
+                <i class="nav-icon fas fa-gear"></i>
+                <span>설정</span>
+            </a>
+            <a href="#more-page" class="nav-item more">
+                <i class="nav-icon fas fa-ellipsis-h"></i>
+                <span>더보기</span>
+            </a>
+        </nav>
+    </div>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            const stressData = [
+                { date: '8/1', level: 50 },
+                { date: '8/2', level: 60 },
+                { date: '8/3', level: 40 },
+                { date: '8/4', level: 70 },
+                { date: '8/5', level: 45 },
+                { date: '8/6', level: 20 },
+                { date: '8/7', level: 75 }
+            ];
+
+            const path = document.getElementById('graph-line');
+            const dataPointsSvg = document.getElementById('graph-data-points-svg');
+            const dataPointsHtml = document.getElementById('graph-data-points-html');
+            const totalPoints = stressData.length;
+            
+            const viewBoxWidth = 100;
+            const viewBoxHeight = 100;
+            const step = totalPoints > 1 ? viewBoxWidth / (totalPoints - 1) : 0;
+            
+            let pathD = "";
+            if (dataPointsSvg) dataPointsSvg.innerHTML = "";
+            if (dataPointsHtml) dataPointsHtml.innerHTML = "";
+
+            stressData.forEach((data, index) => {
+                const x = step * index;
+                const y = viewBoxHeight - (data.level / 100) * viewBoxHeight;
+
+                if (index === 0) {
+                    pathD += `M${x},${y}`;
+                } else {
+                    pathD += ` L${x},${y}`;
+                }
+
+                if (dataPointsSvg) {
+                    const circle = document.createElementNS('http://www.w3.org/2000/svg', 'circle');
+                    circle.setAttribute('cx', x);
+                    circle.setAttribute('cy', y);
+                    circle.setAttribute('r', 2);
+                    circle.classList.add('data-point-circle');
+                    dataPointsSvg.appendChild(circle);
+                }
+
+                if (dataPointsHtml) {
+                    const labelWrapper = document.createElement('div');
+                    labelWrapper.classList.add('data-point-label-wrapper');
+                    
+                    const tooltip = document.createElement('span');
+                    tooltip.classList.add('data-point-tooltip');
+                    tooltip.textContent = data.level;
+                    
+                    const dateLabel = document.createElement('span');
+                    dateLabel.classList.add('data-point-date');
+                    dateLabel.textContent = data.date;
+
+                    const dataPointPlaceholder = document.createElement('div');
+                    dataPointPlaceholder.style.position = 'absolute';
+                    dataPointPlaceholder.style.top = `${y}%`;
+                    dataPointPlaceholder.style.transform = `translateY(-50%)`;
+                    
+                    dataPointPlaceholder.appendChild(tooltip);
+                    labelWrapper.appendChild(dataPointPlaceholder);
+                    labelWrapper.appendChild(dateLabel);
+                    dataPointsHtml.appendChild(labelWrapper);
+                    
+                    labelWrapper.addEventListener('mouseover', () => {
+                        labelWrapper.classList.add('active');
+                    });
+                    
+                    labelWrapper.addEventListener('mouseout', () => {
+                        labelWrapper.classList.remove('active');
+                    });
+                }
+            });
+
+            if (path) {
+                path.setAttribute('d', pathD);
+            }
+
+            // 대화 내용 토글 기능
+            const chatHeader = document.querySelector('.chat-toggle-header');
+            const chatContent = document.querySelector('.chat-content-box');
+            const chatToggleIcon = chatHeader.querySelector('.toggle-icon');
+
+            if (chatContent && chatToggleIcon) {
+                chatContent.classList.add('hidden');
+                chatToggleIcon.textContent = '+';
+            }
+
+            if (chatHeader) {
+                chatHeader.addEventListener('click', () => {
+                    chatContent.classList.toggle('hidden');
+                    chatHeader.classList.toggle('active');
+                    
+                    if (chatContent.classList.contains('hidden')) {
+                        chatToggleIcon.textContent = '+';
+                    } else {
+                        chatToggleIcon.textContent = 'x';
+                    }
+                });
+            }
+            
+            // 솔루션 토글 및 내용 표시 기능
+            const solutionHeader = document.querySelector('.solution-toggle-header');
+            const solutionContent = document.querySelector('.solution-content-box');
+            const solutionToggleIcon = solutionHeader.querySelector('.toggle-icon');
+            const solutionText = document.querySelector('.solution-content-box p');
+            
+            if (solutionContent && solutionToggleIcon) {
+                solutionContent.classList.add('hidden');
+                solutionToggleIcon.textContent = '+';
+                
+                const lastStressLevel = stressData[stressData.length - 1].level;
+                const stressSolution = lastStressLevel > 60
+                    ? `스트레스 지수가 높습니다. 오늘 하루는 <span style="font-weight: bold; color: var(--accent-color);">명상</span>을 통해 마음을 가라앉히거나, <span style="font-weight: bold; color: var(--accent-color);">가벼운 산책</span>으로 기분 전환을 해보는 건 어떨까요?`
+                    : `오늘은 평온한 하루를 보내셨네요. <span style="font-weight: bold; color: var(--accent-color);">좋아하는 음악</span>을 들으며 지금의 좋은 기분을 유지해보세요.`;
+                
+                solutionText.innerHTML = stressSolution;
+            }
+            
+            if (solutionHeader) {
+                solutionHeader.addEventListener('click', () => {
+                    solutionContent.classList.toggle('hidden');
+                    solutionHeader.classList.toggle('active');
+                    
+                    if (solutionContent.classList.contains('hidden')) {
+                        solutionToggleIcon.textContent = '+';
+                    } else {
+                        solutionToggleIcon.textContent = 'x';
+                    }
+                });
+            }
+
+            const navItems = document.querySelectorAll('.nav-item');
+            const pages = document.querySelectorAll('.page-content');
+
+            navItems.forEach(item => {
+                item.addEventListener('click', (e) => {
+                    e.preventDefault();
+                    
+                    navItems.forEach(nav => nav.classList.remove('active'));
+                    item.classList.add('active');
+
+                    const targetPageId = item.getAttribute('href').substring(1);
+                    
+                    pages.forEach(page => {
+                        if (page.id === targetPageId) {
+                            page.classList.add('active');
+                        } else {
+                            page.classList.remove('active');
+                        }
+                    });
+                });
+            });
+
+            // 다크 모드 토글 기능 추가
+            const darkModeToggle = document.getElementById('dark-mode-toggle');
+            const body = document.body;
+
+            // 로컬 스토리지에서 다크 모드 상태 불러오기
+            const isDarkMode = localStorage.getItem('darkMode') === 'enabled';
+            if (isDarkMode) {
+                body.classList.add('dark-mode');
+                if (darkModeToggle) {
+                    darkModeToggle.checked = true;
+                }
+            }
+
+            // 토글 버튼 클릭 시 다크 모드 전환
+            if (darkModeToggle) {
+                darkModeToggle.addEventListener('change', () => {
+                    if (darkModeToggle.checked) {
+                        body.classList.add('dark-mode');
+                        localStorage.setItem('darkMode', 'enabled');
+                    } else {
+                        body.classList.remove('dark-mode');
+                        localStorage.setItem('darkMode', 'disabled');
+                    }
+                });
+            }
+        });
+    </script>
+</body>
+</html>
